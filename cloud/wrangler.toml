@@ -1,0 +1,26 @@
+"$schema" = "./node_modules/wrangler/config-schema.json"
+name = "fps-api"
+main = "src/index.ts"
+compatibility_date = "2026-10-24"
+compatibility_flags = [ "nodejs_compat" ]
+upload_source_maps = true
+
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+
+[observability.traces]
+enabled = true
+head_sampling_rate = 1
+
+[secrets]
+required = [ "JWT_SECRET" ]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "fps-auth"
+database_id = "01151840-bb57-428f-a25e-7abd0cf05311"
+migrations_dir = "migrations"

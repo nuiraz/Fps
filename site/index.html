@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Game Booster</title>
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="mark"><span class="bolt"></span> GAME BOOSTER</div>
+      <nav>
+        <a href="#fonctions">Fonctions</a>
+        <a href="login.html">Compte</a>
+      </nav>
+    </header>
+    <section class="hero">
+      <div>
+        <h1>Le PC se prépare.<br><span>Le jeu reste intact.</span></h1>
+        <p class="lede">Application Windows pour activer un plan d'alimentation, couper les captures, nettoyer les fichiers temporaires et suivre la charge machine. Aucune injection, aucune modification des fichiers de jeu.</p>
+        <div class="actions">
+          <a class="button lime" id="download" href="https://github.com/nuiraz/Fps/releases/latest/download/GameBooster.exe">Télécharger l'exécutable</a>
+          <a class="button ghost" id="releases" href="https://github.com/nuiraz/Fps/releases/latest">Toutes les versions</a>
+        </div>
+      </div>
+      <div class="board" aria-hidden="true">
+        <div class="meters">
+          <div class="meter"><span>Processeur</span><b>42%</b><div class="rule"><i></i></div></div>
+          <div class="meter"><span>Mémoire</span><b>71%</b><div class="rule coral"><i></i></div></div>
+          <div class="meter"><span>GPU 3D</span><b>33%</b><div class="rule teal"><i></i></div></div>
+        </div>
+        <p class="note">Priorité Haute seulement. Jamais Temps réel. Le ping ICMP n'est pas le lag d'une partie.</p>
+      </div>
+    </section>
+    <section id="fonctions">
+      <div class="grid">
+        <article>
+          <h2>Ce que le boost fait</h2>
+          <p>Plan Performances ultimes ou élevées, mode jeu, HAGS, captures Xbox, optimisations plein écran, Nagle, effets visuels, fermeture d'applications choisies, nettoyage et point de restauration.</p>
+        </article>
+        <article>
+          <h2>Ce qu'il ne fait pas</h2>
+          <p>Il ne lit pas la mémoire d'un jeu, n'écrit pas dans ses fichiers et ne touche pas aux processus anti-triche. Restaurer par défaut ne ressuscite pas les fichiers supprimés.</p>
+        </article>
+        <article>
+          <h2>Compte</h2>
+          <p>Presets personnels, préférences et historique sont dans Cloudflare D1, par utilisateur. L'application ne garde qu'un cache DPAPI. La sauvegarde des tweaks reste sur le PC.</p>
+        </article>
+        <article>
+          <h2>Téléchargement</h2>
+          <p>Le bouton télécharge <code>GameBooster.exe</code> depuis la dernière release publique, sans compte GitHub. Le .NET 8 est inclus : rien à installer à part les droits administrateur.</p>
+        </article>
+      </div>
+    </section>
+    <footer>Game Booster · Windows 10 ou plus récent · interface en français</footer>
+  </div>
+  <script src="js/config.js"></script>
+  <script>
+    const config = window.GAMEBOOSTER_CONFIG;
+    document.getElementById("download").href = config.downloadUrl;
+    document.getElementById("releases").href = config.releasesUrl;
+  </script>
+</body>
+</html>

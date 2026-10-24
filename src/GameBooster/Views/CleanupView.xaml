@@ -1,0 +1,17 @@
+<UserControl x:Class="GameBooster.Views.CleanupView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel MaxWidth="720" HorizontalAlignment="Left">
+        <TextBlock Text="Nettoyage" Style="{StaticResource PageTitle}"/>
+        <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,12" Text="Les fichiers supprimés ne sont pas récupérés par Restaurer par défaut. Les caches de shaders seront reconstruits, ce qui peut ralentir le premier lancement."/>
+        <Border Style="{StaticResource Card}">
+            <StackPanel>
+                <CheckBox Content="Fichiers temporaires" IsChecked="{Binding CleanTemp}"/>
+                <CheckBox Content="Caches de shaders DirectX, NVIDIA et AMD" IsChecked="{Binding CleanShaders}"/>
+                <CheckBox Content="Corbeille" IsChecked="{Binding EmptyRecycle}"/>
+                <Button Content="Nettoyer" Style="{StaticResource PrimaryButton}" Command="{Binding RunCommand}" HorizontalAlignment="Left" Margin="0,12,0,0"/>
+                <TextBlock Text="{Binding Output}" Style="{StaticResource Muted}" Margin="0,12,0,0"/>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

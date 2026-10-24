@@ -1,0 +1,43 @@
+<UserControl x:Class="GameBooster.Controls.TweakEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:models="clr-namespace:GameBooster.Models">
+    <StackPanel>
+        <TextBlock Text="Plan d'alimentation" Style="{StaticResource Muted}"/>
+        <ComboBox Margin="0,4,0,10" ItemsSource="{x:Static models:ChoiceLists.PowerPlans}" SelectedValue="{Binding PowerPlan}" SelectedValuePath="Value" ItemTemplate="{StaticResource ChoiceLabelTemplate}"/>
+
+        <TextBlock Text="Mode jeu" Style="{StaticResource Muted}"/>
+        <ComboBox Margin="0,4,0,10" ItemsSource="{x:Static models:ChoiceLists.Toggles}" SelectedValue="{Binding GameMode}" SelectedValuePath="Value" ItemTemplate="{StaticResource ChoiceLabelTemplate}"/>
+
+        <TextBlock Text="HAGS (planification GPU)" Style="{StaticResource Muted}"/>
+        <ComboBox Margin="0,4,0,2" ItemsSource="{x:Static models:ChoiceLists.Toggles}" SelectedValue="{Binding Hags}" SelectedValuePath="Value" ItemTemplate="{StaticResource ChoiceLabelTemplate}"/>
+        <TextBlock Text="Un redémarrage est nécessaire. L'application ne redémarre pas le PC." FontSize="12" Foreground="{StaticResource Brush.Faint}" Margin="0,0,0,10"/>
+
+        <TextBlock Text="Captures Xbox Game Bar" Style="{StaticResource Muted}"/>
+        <ComboBox Margin="0,4,0,2" ItemsSource="{x:Static models:ChoiceLists.Toggles}" SelectedValue="{Binding GameDvr}" SelectedValuePath="Value" ItemTemplate="{StaticResource ChoiceLabelTemplate}"/>
+        <TextBlock Text="Désactiver coupe les captures, pas toute la Game Bar." FontSize="12" Foreground="{StaticResource Brush.Faint}" Margin="0,0,0,10"/>
+
+        <TextBlock Text="Optimisations plein écran" Style="{StaticResource Muted}"/>
+        <ComboBox Margin="0,4,0,2" ItemsSource="{x:Static models:ChoiceLists.Toggles}" SelectedValue="{Binding FullscreenOptimizations}" SelectedValuePath="Value" ItemTemplate="{StaticResource ChoiceLabelTemplate}"/>
+        <TextBlock Text="S'applique aux exécutables choisis dans Paramètres. Les fichiers du jeu ne sont pas modifiés." FontSize="12" Foreground="{StaticResource Brush.Faint}" Margin="0,0,0,10"/>
+
+        <TextBlock Text="Priorité des jeux surveillés" Style="{StaticResource Muted}"/>
+        <ComboBox Margin="0,4,0,2" ItemsSource="{x:Static models:ChoiceLists.Toggles}" SelectedValue="{Binding GamePriority}" SelectedValuePath="Value" ItemTemplate="{StaticResource ChoiceLabelTemplate}"/>
+        <TextBlock Text="Activer demande la priorité Haute. Jamais Temps réel, aucune lecture mémoire." FontSize="12" Foreground="{StaticResource Brush.Faint}" Margin="0,0,0,10"/>
+
+        <TextBlock Text="Algorithme de Nagle" Style="{StaticResource Muted}"/>
+        <ComboBox Margin="0,4,0,2" ItemsSource="{x:Static models:ChoiceLists.Toggles}" SelectedValue="{Binding Nagle}" SelectedValuePath="Value" ItemTemplate="{StaticResource ChoiceLabelTemplate}"/>
+        <TextBlock Text="Désactiver coupe Nagle sur les cartes qui ont une adresse IP." FontSize="12" Foreground="{StaticResource Brush.Faint}" Margin="0,0,0,10"/>
+
+        <TextBlock Text="Effets visuels" Style="{StaticResource Muted}"/>
+        <ComboBox Margin="0,4,0,2" ItemsSource="{x:Static models:ChoiceLists.Toggles}" SelectedValue="{Binding VisualEffects}" SelectedValuePath="Value" ItemTemplate="{StaticResource ChoiceLabelTemplate}"/>
+        <TextBlock Text="Désactiver règle l'apparence pour les performances. Activer réécrit les valeurs d'origine de ce PC." FontSize="12" Foreground="{StaticResource Brush.Faint}" Margin="0,0,0,10"/>
+
+        <CheckBox Content="Créer un point de restauration" IsChecked="{Binding CreateRestorePoint}"/>
+        <CheckBox Content="Fermer les applications cochées" IsChecked="{Binding CloseBackgroundApps}"/>
+        <CheckBox Content="Nettoyer les fichiers temporaires" IsChecked="{Binding CleanTemp}"/>
+        <CheckBox Content="Nettoyer les caches de shaders (recompilation au prochain jeu)" IsChecked="{Binding CleanShaderCache}"/>
+        <CheckBox Content="Vider la corbeille" IsChecked="{Binding EmptyRecycleBin}"/>
+        <CheckBox Content="Vider le cache DNS" IsChecked="{Binding FlushDns}"/>
+    </StackPanel>
+</UserControl>

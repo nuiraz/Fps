@@ -1,0 +1,151 @@
+<UserControl x:Class="GameBooster.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:GameBooster.Controls">
+    <UserControl.Resources>
+        <Style x:Key="MetricCard" TargetType="Border" BasedOn="{StaticResource Card}">
+            <Setter Property="Padding" Value="10,8,10,8"/>
+            <Setter Property="Margin" Value="0,0,10,10"/>
+        </Style>
+        <Style x:Key="StatusCard" TargetType="Border" BasedOn="{StaticResource Card}">
+            <Setter Property="Padding" Value="14,12"/>
+            <Setter Property="Margin" Value="0,0,10,10"/>
+        </Style>
+        <Style x:Key="BoostButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="Transparent">
+                            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.88"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel>
+            <DockPanel Margin="0,0,10,14">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Ellipse x:Name="LiveDot" Width="8" Height="8" Fill="{StaticResource Brush.Teal}" Margin="0,0,8,0">
+                        <Ellipse.Triggers>
+                            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                <BeginStoryboard>
+                                    <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                                        <DoubleAnimation Storyboard.TargetName="LiveDot" Storyboard.TargetProperty="Opacity" From="0.35" To="1" Duration="0:0:1.1"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </Ellipse.Triggers>
+                    </Ellipse>
+                    <TextBlock Text="EN DIRECT" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource Brush.Teal}" VerticalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Text="Tableau de bord" Style="{StaticResource PageTitle}"/>
+                    <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,0" Text="Jauges en direct, environ une fois par seconde. Le score monte après un boost."/>
+                </StackPanel>
+            </DockPanel>
+
+            <UniformGrid Columns="4" Margin="0,0,0,6">
+                <Border Style="{StaticResource MetricCard}">
+                    <StackPanel>
+                        <controls:CircularGauge Height="158" Value="{Binding Cpu}" Reading="{Binding CpuLabel}" Caption="CPU" Detail="{Binding CpuDetail}" Accent="{Binding CpuBrush}" Thickness="11"/>
+                        <controls:SparklineControl Height="42" Margin="6,0,6,2" Samples="{Binding CpuSamples}" Stroke="{StaticResource Brush.Lime}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource MetricCard}">
+                    <StackPanel>
+                        <controls:CircularGauge Height="158" Value="{Binding Ram}" Reading="{Binding RamLabel}" Caption="RAM" Detail="{Binding RamDetail}" Accent="{Binding RamBrush}" Thickness="11"/>
+                        <controls:SparklineControl Height="42" Margin="6,0,6,2" Samples="{Binding RamSamples}" Stroke="{StaticResource Brush.Teal}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource MetricCard}">
+                    <StackPanel>
+                        <controls:CircularGauge Height="158" Value="{Binding Gpu}" Reading="{Binding GpuLabel}" Caption="GPU" Detail="{Binding GpuDetail}" Accent="{Binding GpuBrush}" Thickness="11"/>
+                        <TextBlock Text="3D · VRAM NVIDIA si nvidia-smi répond" FontSize="10" Foreground="{StaticResource Brush.Faint}" HorizontalAlignment="Center" Margin="4,2,4,4" TextWrapping="Wrap" TextAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource MetricCard}" Margin="0,0,0,10">
+                    <StackPanel>
+                        <controls:CircularGauge Height="158" Value="{Binding Disk}" Reading="{Binding DiskLabel}" Caption="Disque" Detail="{Binding DiskDetail}" Accent="{Binding DiskBrush}" Thickness="11"/>
+                        <TextBlock Text="Activité du disque, ou espace si le compteur manque" FontSize="10" Foreground="{StaticResource Brush.Faint}" HorizontalAlignment="Center" Margin="4,2,4,4" TextWrapping="Wrap" TextAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <Grid Margin="0,0,0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="280"/>
+                    <ColumnDefinition Width="210"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource Card}" Margin="0,0,10,10" Padding="8,12">
+                    <controls:CircularGauge Height="248" Value="{Binding Score}" Reading="{Binding ScoreLabel}" Caption="Score de performance" Detail="{Binding ScoreDetail}" Accent="{Binding ScoreBrush}" Thickness="14"/>
+                </Border>
+                <Button Grid.Column="1" Style="{StaticResource BoostButton}" Width="196" Height="196" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,10" Command="{Binding QuickBoostCommand}">
+                    <Grid Width="196" Height="196">
+                        <controls:CircularGauge Value="{Binding BoostRing}" ShowCenter="False" Thickness="12" Accent="{StaticResource Brush.Lime}" IsHitTestVisible="False"/>
+                        <StackPanel VerticalAlignment="Center" IsHitTestVisible="False">
+                            <TextBlock Text="{Binding BoostTitle}" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Foreground="{StaticResource Brush.Lime}"/>
+                            <TextBlock Text="{Binding BoostStatus}" FontSize="12" HorizontalAlignment="Center" Foreground="{StaticResource Brush.Muted}" TextAlignment="Center" TextWrapping="Wrap" Margin="28,4,28,0"/>
+                        </StackPanel>
+                    </Grid>
+                </Button>
+                <UniformGrid Grid.Column="2" Columns="2" VerticalAlignment="Center">
+                    <Border Style="{StaticResource StatusCard}">
+                        <StackPanel>
+                            <TextBlock Text="MODE JEU" FontSize="11" Foreground="{StaticResource Brush.Faint}"/>
+                            <TextBlock Text="{Binding GameModeText}" FontSize="18" FontWeight="SemiBold" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource StatusCard}">
+                        <StackPanel>
+                            <TextBlock Text="PLAN D'ALIMENTATION" FontSize="11" Foreground="{StaticResource Brush.Faint}"/>
+                            <TextBlock Text="{Binding PowerPlanText}" FontSize="16" FontWeight="SemiBold" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource StatusCard}">
+                        <StackPanel>
+                            <TextBlock Text="PRESET ACTIF" FontSize="11" Foreground="{StaticResource Brush.Faint}"/>
+                            <TextBlock Text="{Binding ActivePresetName}" FontSize="16" FontWeight="SemiBold" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource StatusCard}" Margin="0,0,0,10">
+                        <StackPanel>
+                            <TextBlock Text="PING ICMP" FontSize="11" Foreground="{StaticResource Brush.Faint}"/>
+                            <TextBlock Text="{Binding PingText}" FontSize="18" FontWeight="SemiBold" Margin="0,4,0,0"/>
+                            <TextBlock Text="Pas le lag en jeu" FontSize="11" Foreground="{StaticResource Brush.Faint}" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+            </Grid>
+
+            <Border Style="{StaticResource Card}" Margin="0,0,0,8">
+                <StackPanel>
+                    <TextBlock Text="Historique récent" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                    <ItemsControl ItemsSource="{Binding History}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding}" TextWrapping="Wrap" Margin="0,3" Foreground="{StaticResource Brush.Muted}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
