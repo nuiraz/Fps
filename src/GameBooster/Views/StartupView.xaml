@@ -24,7 +24,7 @@
                                     <Run Text="  "/>
                                     <Run Text="{Binding Location, Mode=OneWay}" Foreground="{StaticResource Brush.Faint}"/>
                                 </TextBlock>
-                                <TextBlock Text="{Binding Command}" Style="{StaticResource Muted}" FontSize="12"/>
+                                <TextBlock Text="{Binding Command, Mode=OneWay}" Style="{StaticResource Muted}" FontSize="12" TextWrapping="Wrap"/>
                             </StackPanel>
                         </DockPanel>
                     </Border>

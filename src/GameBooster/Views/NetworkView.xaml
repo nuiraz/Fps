@@ -29,7 +29,7 @@
                     <TextBlock Text="Nombre d'essais (1 à 10)" Style="{StaticResource Muted}"/>
                     <TextBox Text="{Binding Count}" Margin="0,4,0,8" Width="80" HorizontalAlignment="Left"/>
                     <Button Content="Tester" Style="{StaticResource PrimaryButton}" Command="{Binding PingCommand}" HorizontalAlignment="Left"/>
-                    <TextBox Text="{Binding Output}" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="120" Margin="0,12,0,0" Background="Transparent" BorderThickness="0"/>
+                    <TextBox Text="{Binding Output, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="120" Margin="0,12,0,0" Background="Transparent" BorderThickness="0"/>
                 </StackPanel>
             </Border>
         </StackPanel>

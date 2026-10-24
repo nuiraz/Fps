@@ -185,7 +185,7 @@ public sealed class PresetsViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            Dialogs.Error("Import impossible : " + ex.Message);
+            Faults.Report(ex, "Import de presets");
         }
     }
 

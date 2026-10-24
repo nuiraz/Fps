@@ -71,6 +71,7 @@ public sealed class MainViewModel : ObservableObject
     public AccountViewModel Account { get; }
     public ObservableCollection<NavEntry> Nav { get; }
     public string AdminText => _services.IsAdmin ? "Administrateur" : "Droits insuffisants";
+    public string VersionText { get; } = "  " + (System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "");
     public string SyncText { get => _syncText; private set => Set(ref _syncText, value); }
     public string PowerText { get => _powerText; private set => Set(ref _powerText, value); }
     public bool ShowLoginBanner { get => _showBanner; private set => Set(ref _showBanner, value); }

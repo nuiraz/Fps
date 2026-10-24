@@ -19,14 +19,16 @@ public sealed class AppLog
 
     public void Error(string message, Exception? ex = null)
     {
-        var text = ex == null ? message : message + " | " + ex.GetType().Name + ": " + ex.Message;
+        var text = ex == null ? message : message + Environment.NewLine + ex;
         Write("ERROR", text);
     }
 
     private void Write(string level, string message)
     {
-        var line = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.GetCultureInfo("fr-FR"))
-            + " " + level + " " + message.Replace('\r', ' ').Replace('\n', ' ');
+        var stamp = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss", CultureInfo.GetCultureInfo("fr-FR"));
+        var body = (message ?? "").Replace("\r\n", "\n").Replace('\r', '\n').TrimEnd();
+        var block = string.Join(Environment.NewLine, body.Split('\n').Select((line, index) =>
+            index == 0 ? stamp + " " + level + " " + line : stamp + " " + level + " … " + line));
         lock (_gate)
         {
             try
@@ -38,7 +40,7 @@ public sealed class AppLog
                     File.Delete(previous);
                     File.Move(_path, previous);
                 }
-                File.AppendAllText(_path, line + Environment.NewLine, Encoding.UTF8);
+                File.AppendAllText(_path, block + Environment.NewLine, Encoding.UTF8);
             }
             catch
             {

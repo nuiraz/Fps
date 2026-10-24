@@ -71,3 +71,13 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
+
+  binding-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: Audit XAML bindings
+        run: dotnet test tests/BindingAudit.Tests/BindingAudit.Tests.csproj -c Release

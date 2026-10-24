@@ -21,11 +21,22 @@ public partial class App : Application
             typeof(FrameworkElement),
             new FrameworkPropertyMetadata(XmlLanguage.GetLanguage("fr-FR")));
 
+        var log = new AppLog();
+        Faults.Attach(log);
         DispatcherUnhandledException += (_, args) =>
         {
-            try { _services?.Log.Error("Exception interface", args.Exception); } catch { /* journal indisponible */ }
-            MessageBox.Show(args.Exception.Message, "Game Booster", MessageBoxButton.OK, MessageBoxImage.Error);
+            Faults.Report(args.Exception, "Exception interface");
             args.Handled = true;
+        };
+        AppDomain.CurrentDomain.UnhandledException += (_, args) =>
+        {
+            if (args.ExceptionObject is Exception ex)
+                Faults.Report(ex, "Exception non gérée", showUi: !args.IsTerminating);
+        };
+        TaskScheduler.UnobservedTaskException += (_, args) =>
+        {
+            Faults.Report(args.Exception, "Tâche en arrière-plan");
+            args.SetObserved();
         };
 
         try
@@ -38,12 +49,12 @@ public partial class App : Application
         }
         if (!_mutexOwned)
         {
-            MessageBox.Show("Game Booster est déjà ouvert.", "Game Booster", MessageBoxButton.OK, MessageBoxImage.Information);
+            NoticeWindow.ShowModal("Game Booster est déjà ouvert.", NoticeKind.Info);
             Shutdown();
             return;
         }
 
-        _services = AppServices.Create(Dispatcher);
+        _services = AppServices.Create(Dispatcher, log);
         var window = new MainWindow(_services);
         MainWindow = window;
         window.Show();

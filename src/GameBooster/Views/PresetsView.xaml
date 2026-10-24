@@ -4,8 +4,8 @@
              xmlns:controls="clr-namespace:GameBooster.Controls">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="340"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="340" MinWidth="0"/>
+            <ColumnDefinition Width="*" MinWidth="0"/>
         </Grid.ColumnDefinitions>
         <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,0,12,0">
             <StackPanel>
@@ -37,7 +37,7 @@
                     </StackPanel>
                     <TextBlock Text="Presets du compte" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
                 </DockPanel>
-                <ListBox ItemsSource="{Binding Customs}" SelectedItem="{Binding Selected}" DisplayMemberPath="Name" MinHeight="90" MaxHeight="160" Background="{StaticResource Brush.Card}" Foreground="{StaticResource Brush.Text}" BorderBrush="{StaticResource Brush.Line}"/>
+                <ListBox ItemsSource="{Binding Customs}" SelectedItem="{Binding Selected}" ItemTemplate="{StaticResource PresetNameTemplate}" MinHeight="90" MaxHeight="160" Background="{StaticResource Brush.Card}" Foreground="{StaticResource Brush.Text}" BorderBrush="{StaticResource Brush.Line}" ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
                 <StackPanel Orientation="Horizontal" Margin="0,8,0,8">
                     <Button Content="Nouveau" Command="{Binding NewCommand}" Margin="0,0,8,0"/>
                     <Button Content="Enregistrer" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}" Margin="0,0,8,0"/>

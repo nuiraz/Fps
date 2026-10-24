@@ -21,7 +21,7 @@
             <Border Style="{StaticResource Card}">
                 <StackPanel>
                     <TextBlock Text="Preset actif" Style="{StaticResource Muted}"/>
-                    <ComboBox ItemsSource="{Binding Presets}" SelectedItem="{Binding ActivePreset}" DisplayMemberPath="Name" Margin="0,4,0,8"/>
+                    <ComboBox ItemsSource="{Binding Presets}" SelectedItem="{Binding ActivePreset}" ItemTemplate="{StaticResource PresetNameTemplate}" Margin="0,4,0,8"/>
                     <TextBlock Text="Jeux surveillés, un nom de processus par ligne" Style="{StaticResource Muted}"/>
                     <TextBox Text="{Binding Games, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" MinHeight="90" Margin="0,4,0,8"/>
                     <TextBlock Text="Exécutables pour les optimisations plein écran" Style="{StaticResource Muted}"/>

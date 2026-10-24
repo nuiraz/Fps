@@ -2,8 +2,6 @@ using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using System.Windows;
-
 namespace GameBooster.Services;
 
 public static class AppJson
@@ -89,18 +87,6 @@ public static class TimeStamp
             return "—";
         return utc.ToLocalTime().ToString("dd/MM/yyyy HH:mm", CultureInfo.GetCultureInfo("fr-FR"));
     }
-}
-
-public static class Dialogs
-{
-    public static bool Confirm(string text)
-        => MessageBox.Show(text, "Game Booster", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes;
-
-    public static void Info(string text)
-        => MessageBox.Show(text, "Game Booster", MessageBoxButton.OK, MessageBoxImage.Information);
-
-    public static void Error(string text)
-        => MessageBox.Show(text, "Game Booster", MessageBoxButton.OK, MessageBoxImage.Error);
 }
 
 public static partial class Guard

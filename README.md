@@ -69,7 +69,9 @@ dotnet publish src/GameBooster/GameBooster.csproj -c Release -r win-x64 --self-c
 
 L'exécutable est `src/GameBooster/bin/Release/net8.0-windows/win-x64/publish/GameBooster.exe`.
 
-GitHub Actions (`.github/workflows/build.yml`) publie cet exécutable sur `windows-latest` et le joint à une release lors d'une étiquette `v*`. Le job `worker` vérifie le typecheck et les tests du Worker.
+GitHub Actions (`.github/workflows/build.yml`) publie cet exécutable sur `windows-latest` et le joint à une release lors d'une étiquette `v*`. Le job `worker` vérifie le typecheck et les tests du Worker. Le job `binding-audit` refuse une liaison TwoWay (TextBox, ComboBox, ListBox, CheckBox, mot de passe) vers une propriété en lecture seule.
+
+Une erreur d'interface ou une commande qui échoue affiche un toast en français. Le détail, pile comprise, est ajouté à `%AppData%\GameBooster\logs\app.log` (le fichier tourne vers `app.log.1` au-delà de 1 Mo). Les exceptions du thread interface, du domaine et des tâches non observées sont interceptées de la même façon. Une confirmation (boost, restauration, suppression) reste une fenêtre sombre Oui / Non.
 
 ## Déployer Cloudflare
 

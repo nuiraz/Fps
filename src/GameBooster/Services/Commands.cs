@@ -80,7 +80,7 @@ public sealed class AsyncRelayCommand : ICommand
             if (_onError != null)
                 _onError(ex);
             else
-                System.Windows.MessageBox.Show(ex.Message, "Game Booster", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                Faults.Report(ex, "Commande");
         }
         finally
         {

@@ -21,9 +21,9 @@ public sealed class AppServices : IDisposable
     public TweakEngine Tweaks { get; }
     public bool IsAdmin { get; }
 
-    private AppServices(Dispatcher dispatcher)
+    private AppServices(Dispatcher dispatcher, AppLog log)
     {
-        Log = new AppLog();
+        Log = log;
         Store = new LocalStore(Log);
         State = new AppState(dispatcher);
         State.Machine = Store.LoadMachine();
@@ -51,7 +51,7 @@ public sealed class AppServices : IDisposable
         IsAdmin = new WindowsPrincipal(identity).IsInRole(WindowsBuiltInRole.Administrator);
     }
 
-    public static AppServices Create(Dispatcher dispatcher) => new(dispatcher);
+    public static AppServices Create(Dispatcher dispatcher, AppLog? log = null) => new(dispatcher, log ?? new AppLog());
 
     public void Dispose()
     {

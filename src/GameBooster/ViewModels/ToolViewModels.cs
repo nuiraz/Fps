@@ -88,7 +88,8 @@ public sealed class NetworkViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            Output = ex.Message;
+            _services.Log.Error("Test ICMP", ex);
+            Output = Faults.Friendly(ex);
         }
         finally { IsBusy = false; }
     }
@@ -167,7 +168,8 @@ public sealed class StartupViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            Status = ex.Message;
+            _services.Log.Error("Liste de démarrage", ex);
+            Status = "Impossible de lire les programmes de démarrage. Le détail est dans le journal.";
         }
     }
 
@@ -187,7 +189,7 @@ public sealed class StartupViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            Dialogs.Error(ex.Message);
+            Faults.Report(ex, "Démarrage");
         }
     }
 }
