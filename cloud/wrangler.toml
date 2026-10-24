@@ -22,5 +22,5 @@ required = [ "JWT_SECRET" ]
 [[d1_databases]]
 binding = "DB"
 database_name = "fps-auth"
-database_id = "00000000-0000-4000-8000-000000000001"
+database_id = "01151840-bb57-428f-a25e-7abd0cf05311"
 migrations_dir = "migrations"

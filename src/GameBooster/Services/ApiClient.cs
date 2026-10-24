@@ -68,7 +68,9 @@ public sealed class ApiClient : IDisposable
 
     public async Task<ApiResult<Preset>> DeletePresetAsync(string id, string updatedAt, CancellationToken cancellationToken = default)
     {
-        var result = await SendAsync<PresetDto>(HttpMethod.Delete, "/api/presets/" + Uri.EscapeDataString(id), new { updatedAt }, true, cancellationToken);
+        var stamp = TimeStamp.EnsureIso(updatedAt) ?? TimeStamp.Touch(updatedAt);
+        var path = "/api/presets/" + Uri.EscapeDataString(id) + "?updatedAt=" + Uri.EscapeDataString(stamp);
+        var result = await SendAsync<PresetDto>(HttpMethod.Delete, path, new { updatedAt = stamp }, true, cancellationToken);
         if (result.Conflict)
             return new ApiResult<Preset> { Status = 409, Raw = result.Raw, Value = ParseEnvelopePreset(result.Raw) };
         return new ApiResult<Preset> { Status = result.Status, Raw = result.Raw, Value = result.Value == null ? null : ToPreset(result.Value) };
@@ -79,7 +81,12 @@ public sealed class ApiClient : IDisposable
 
     public async Task<ApiResult<SettingsDocument>> PutSettingsAsync(SettingsDocument settings, CancellationToken cancellationToken = default)
     {
-        var result = await SendAsync<SettingsDocument>(HttpMethod.Put, "/api/settings", settings, true, cancellationToken);
+        var payload = new SettingsDocument
+        {
+            UpdatedAt = TimeStamp.EnsureIso(settings.UpdatedAt) ?? TimeStamp.Touch(settings.UpdatedAt),
+            Preferences = PreferenceRules.Sanitize(settings.Preferences)
+        };
+        var result = await SendAsync<SettingsDocument>(HttpMethod.Put, "/api/settings", payload, true, cancellationToken);
         if (!result.Conflict)
             return result;
         SettingsDocument? current = null;
@@ -210,16 +217,21 @@ public sealed class ApiClient : IDisposable
         }
     }
 
-    private static PresetDto ToDto(Preset preset) => new()
+    private static PresetDto ToDto(Preset preset)
     {
-        Id = preset.Id,
-        Name = preset.Name,
-        Description = preset.Description,
-        Tweaks = preset.Tweaks,
-        CreatedAt = preset.CreatedAt,
-        UpdatedAt = preset.UpdatedAt,
-        Deleted = preset.Deleted
-    };
+        var updated = TimeStamp.EnsureIso(preset.UpdatedAt) ?? TimeStamp.Touch(preset.UpdatedAt);
+        var created = TimeStamp.EnsureIso(preset.CreatedAt) ?? updated;
+        return new PresetDto
+        {
+            Id = preset.Id,
+            Name = preset.Name,
+            Description = preset.Description,
+            Tweaks = preset.Tweaks,
+            CreatedAt = created,
+            UpdatedAt = updated,
+            Deleted = preset.Deleted
+        };
+    }
 
     private static Preset ToPreset(PresetDto dto) => new()
     {

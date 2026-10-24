@@ -6,7 +6,7 @@ Les presets personnels, les préférences et l'historique de boost sont stockés
 
 ## Fonctionnalités
 
-- Tableau de bord : processeur, mémoire, utilisation 3D du GPU et température NVIDIA si `nvidia-smi` est présent.
+- Tableau de bord : jauges circulaires CPU, RAM (Go utilisés), GPU (VRAM NVIDIA si `nvidia-smi` répond) et disque, températures quand elles sont lisibles, courbes CPU/RAM, score de performance qui monte après un boost, cartes mode jeu / plan d'alimentation / preset actif / ping ICMP, et bouton **BOOST** avec anneau de progression.
 - Boost en un clic à partir d'un preset, avec journal.
 - Presets intégrés : Compétitif / Fortnite, Équilibré, Streaming, Économie. Presets personnels créés dans l'application, import et export JSON (`gamebooster-presets`, version 1).
 - Plan d'alimentation Performances ultimes, Performances élevées ou Utilisation normale. Si le mode ultime n'existe pas, le mode élevé est activé et le journal le dit.
@@ -44,9 +44,20 @@ Inscription et connexion avec un nom d'utilisateur et un mot de passe. Pas d'adr
 | URL de l'API et l'option « se souvenir de moi » | `%AppData%\GameBooster\machine-settings.json` |
 | Valeurs à restaurer (registre, plan d'alimentation, surveillance de priorité) | `%AppData%\GameBooster\machine-backup.dat`, DPAPI, jamais envoyées |
 
-La synchro a lieu à la connexion, après un changement, toutes les deux minutes, et avec le bouton **Synchroniser**. La dernière écriture gagne, d'après `updatedAt`. Un enregistrement plus ancien reçoit une réponse 409 et le client reprend la version du serveur. L'historique est ajouté seulement : le même identifiant n'est pas dupliqué. Les suppressions de presets laissent une marque pour se propager. Sans compte, un cache `_local` existe sur le PC et n'est pas versé dans le compte à la connexion.
+La synchro a lieu à la connexion, après un changement, toutes les deux minutes, et avec le bouton **Synchroniser**. La dernière écriture gagne, d'après `updatedAt`. Chaque modification locale reçoit une date strictement plus récente que la précédente, même si deux enregistrements tombent dans la même milliseconde. Un enregistrement plus ancien reçoit une réponse 409 et le client reprend la version du serveur. L'historique est ajouté seulement : le même identifiant n'est pas dupliqué. Les suppressions de presets laissent une marque pour se propager. Sans compte, un cache `_local` existe sur le PC et n'est pas versé dans le compte à la connexion.
 
-L'URL par défaut est `https://fps-api.<subdomain>.workers.dev`. Tant que `<subdomain>` est présent, l'application prévient et n'appelle pas le serveur. Remplacez-la dans **Paramètres**.
+Les presets personnels ont un identifiant UUID. `PUT /api/presets/{id}` envoie `createdAt` et `updatedAt` en ISO-8601 UTC. `DELETE /api/presets/{id}` envoie le même `updatedAt` dans le corps JSON et dans la query : le Worker lit d'abord le corps, puis `?updatedAt=` si le corps n'a pas de date. `PUT /api/settings` n'envoie que les champs acceptés (listes non nulles, hôte de ping, 1 à 10 pings, applications de la liste fermée, chemins `C:\…\jeu.exe`).
+
+## Services en ligne
+
+L'API et le site sont déjà déployés :
+
+- API : https://fps-api.nathna.workers.dev
+- Site : https://fps-site.nathna.workers.dev
+
+L'application utilise cette API par défaut. Le site lit la même adresse dans `site/js/config.js`. `cloud/wrangler.toml` pointe vers la base D1 `fps-auth`, identifiant `01151840-bb57-428f-a25e-7abd0cf05311`.
+
+Une installation neuve appelle cette API tout de suite. Un `machine-settings.json` déjà présent sur le PC conserve l'URL qu'il contient : si elle a encore `<subdomain>`, **Paramètres** sert à la remplacer. Tant que ce texte est là, l'application n'appelle pas le serveur.
 
 ## Compiler
 
@@ -62,18 +73,11 @@ GitHub Actions (`.github/workflows/build.yml`) publie cet exécutable sur `windo
 
 ## Déployer Cloudflare
 
-Rien n'est déployé par ce dépôt. Les commandes ci-dessous sont à lancer quand vous le décidez, depuis `cloud/` pour l'API et avec le dossier `site/` pour les pages. Il faut Wrangler et un compte Cloudflare.
+L'API `https://fps-api.nathna.workers.dev` et le site `https://fps-site.nathna.workers.dev` sont déjà en ligne. Ce dépôt ne relance pas le déploiement. Les commandes ci-dessous servent à republier plus tard, depuis `cloud/` pour l'API et avec le dossier `site/` pour les pages. Il faut Wrangler et le compte Cloudflare qui possède ces Workers.
 
 ```bash
 cd cloud
 npm ci
-npx wrangler d1 create fps-auth
-```
-
-Copiez l'`database_id` renvoyé dans `cloud/wrangler.toml` à la place de `00000000-0000-4000-8000-000000000001`.
-
-```bash
-npx wrangler d1 migrations apply fps-auth --remote
 npx wrangler secret put JWT_SECRET
 npx wrangler deploy
 npx wrangler pages deploy ../site --project-name fps-site
@@ -87,7 +91,18 @@ JWT_SECRET=remplacez-par-une-longue-chaine-aleatoire
 
 Puis `npx wrangler dev` dans `cloud/`. Le schéma D1 est `cloud/migrations/0001_init.sql` : utilisateurs, sessions, tentatives de connexion, presets, réglages, historique.
 
-Mettez ensuite l'URL `https://fps-api.<votre-sous-domaine>.workers.dev` dans l'application (**Paramètres**) et dans `site/js/config.js` avant de republier les pages. Le lien de téléchargement du site pointe vers les releases GitHub.
+La migration `0001_init.sql` a été appliquée à la main sur la base distante. La table de suivi `d1_migrations` ne la connaît donc pas. Avant le prochain `wrangler d1 migrations apply`, marquez-la comme déjà appliquée, sinon Wrangler rejoue les `CREATE TABLE` et échoue :
+
+```bash
+cd cloud
+npx wrangler d1 execute fps-auth --remote --command "CREATE TABLE IF NOT EXISTS d1_migrations (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT UNIQUE, applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL);"
+npx wrangler d1 execute fps-auth --remote --command "INSERT INTO d1_migrations (name) VALUES ('0001_init.sql');"
+npx wrangler d1 migrations apply fps-auth --remote
+```
+
+Le nom inséré doit être exactement `0001_init.sql`. Si la ligne existe déjà, l'insertion échoue sur la contrainte d'unicité : passez alors directement à `migrations apply`.
+
+`site/js/config.js` pointe déjà vers `https://fps-api.nathna.workers.dev`. Le lien de téléchargement du site pointe vers les releases GitHub.
 
 ### API
 
@@ -107,4 +122,4 @@ Le hachage est volontairement à 100 000 itérations. Sur le plan Workers gratui
 
 ## Configuration de l'URL d'API
 
-Dans l'application : **Paramètres**, champ URL, **Enregistrer**, puis **Tester l'API**. Le test appelle `GET /api/health`. Cette adresse n'est pas synchronisée : chaque PC a la sienne.
+L'URL par défaut est `https://fps-api.nathna.workers.dev`. Dans l'application : **Paramètres**, champ URL, **Enregistrer**, puis **Tester l'API**. Le test appelle `GET /api/health`. Cette adresse n'est pas synchronisée : chaque PC a la sienne.

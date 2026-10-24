@@ -94,7 +94,7 @@ public sealed class ProfileCache
 
 public sealed class MachineSettings
 {
-    public string ApiBaseUrl { get; set; } = "https://fps-api.<subdomain>.workers.dev";
+    public string ApiBaseUrl { get; set; } = "https://fps-api.nathna.workers.dev";
     public bool RememberSession { get; set; }
 }
 

@@ -16,6 +16,7 @@ public sealed class AppState
     public ProfileCache Profile { get; set; } = new();
     public string SyncStatus { get; set; } = "Non connecté";
     public string? LastSyncError { get; set; }
+    public bool BoostApplied { get; set; }
 
     public event Action? Changed;
 

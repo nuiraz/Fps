@@ -1,8 +1,10 @@
 <UserControl x:Class="GameBooster.Controls.SparklineControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Height="72">
+             Height="46"
+             SnapsToDevicePixels="True">
     <Grid>
-        <Polyline x:Name="Line" Stroke="{StaticResource Brush.Lime}" StrokeThickness="2" StrokeLineJoin="Round"/>
+        <Path x:Name="Fill" Opacity="0.18" IsHitTestVisible="False"/>
+        <Path x:Name="Line" Stroke="{StaticResource Brush.Lime}" StrokeThickness="1.6" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
     </Grid>
 </UserControl>

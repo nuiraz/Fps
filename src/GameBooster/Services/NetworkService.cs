@@ -67,7 +67,7 @@ public sealed class NetworkService
             "La latence ICMP n'est pas le lag en jeu : celui-ci dépend du FAI, du routage et des serveurs du jeu."
         };
         var target = (host ?? "").Trim();
-        if (target.Length == 0 || target.Length > 253 || target.Any(char.IsWhiteSpace) || target.Contains('"'))
+        if (!PreferenceRules.IsHost(target))
         {
             lines.Add("Hôte de test invalide.");
             return lines;

@@ -70,7 +70,7 @@ public sealed class PresetsViewModel : ObservableObject
 
     private void Create()
     {
-        var now = TimeStamp.Now();
+        var now = TimeStamp.Touch();
         var preset = new Preset
         {
             Id = Guid.NewGuid().ToString("D"),
@@ -103,7 +103,7 @@ public sealed class PresetsViewModel : ObservableObject
         if (Selected.Description.Length > 300)
             Selected.Description = Selected.Description[..300];
         Selected.Tweaks = Draft.Clone();
-        Selected.UpdatedAt = TimeStamp.Now();
+        Selected.UpdatedAt = TimeStamp.Touch(Selected.UpdatedAt);
         _services.Sync.SaveProfile();
         Reload();
         if (announce)
@@ -118,7 +118,7 @@ public sealed class PresetsViewModel : ObservableObject
         if (!Dialogs.Confirm("Supprimer « " + Selected.Name + " » de ce compte ?"))
             return;
         Selected.Deleted = true;
-        Selected.UpdatedAt = TimeStamp.Now();
+        Selected.UpdatedAt = TimeStamp.Touch(Selected.UpdatedAt);
         _services.Sync.SaveProfile();
         Reload();
     }
@@ -159,7 +159,6 @@ public sealed class PresetsViewModel : ObservableObject
                 Dialogs.Error("Aucun preset dans ce fichier.");
                 return;
             }
-            var now = TimeStamp.Now();
             var count = 0;
             foreach (var node in list.EnumerateArray())
             {
@@ -174,6 +173,7 @@ public sealed class PresetsViewModel : ObservableObject
                     preset.Name = preset.Name[..60];
                 preset.Description = (preset.Description ?? "").Trim();
                 preset.Tweaks ??= new TweakSelection();
+                var now = TimeStamp.Touch();
                 preset.CreatedAt = now;
                 preset.UpdatedAt = now;
                 _services.State.Profile.Presets.Add(preset);

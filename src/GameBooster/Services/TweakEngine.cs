@@ -3,6 +3,8 @@ using Microsoft.Win32;
 
 namespace GameBooster.Services;
 
+public readonly record struct BoostProgress(double Percent, string Label);
+
 public sealed class TweakEngine
 {
     private const string GameBar = @"Software\Microsoft\GameBar";
@@ -51,59 +53,66 @@ public sealed class TweakEngine
         _log = log;
     }
 
-    public Task<IReadOnlyList<string>> ApplyAsync(TweakSelection tweaks, IReadOnlyList<string> appsToClose, string? presetId, string? presetName, string action = "boost")
+    public Task<IReadOnlyList<string>> ApplyAsync(TweakSelection tweaks, IReadOnlyList<string> appsToClose, string? presetId, string? presetName, string action = "boost", IProgress<BoostProgress>? progress = null)
     {
         return Task.Run(() =>
         {
             var lines = new List<string>();
             var failed = false;
-            void Step(string title, Action action)
-            {
-                try
-                {
-                    action();
-                }
-                catch (Exception ex)
-                {
-                    failed = true;
-                    lines.Add(title + " : " + ex.Message);
-                    _log.Error(title, ex);
-                }
-            }
+            var steps = new List<(string Title, Action Work)>();
+            void Add(string title, Action work) => steps.Add((title, work));
 
+            progress?.Report(new BoostProgress(2, tweaks.CreateRestorePoint ? "Point de restauration" : "Préparation"));
             if (tweaks.CreateRestorePoint)
                 lines.Add(_restorePoints.Create("Game Booster"));
 
-            Step("Plan d'alimentation", () =>
+            Add("Plan d'alimentation", () =>
             {
                 lock (_state.Gate)
                     lines.Add(_power.Apply(tweaks.PowerPlan, _state.Backup));
             });
-            Step("Mode jeu", () => lines.Add(ApplyGameMode(tweaks.GameMode)));
-            Step("HAGS", () => lines.Add(ApplyHags(tweaks.Hags)));
-            Step("Captures", () => lines.Add(ApplyDvr(tweaks.GameDvr)));
-            Step("Plein écran", () => lines.AddRange(ApplyFso(tweaks.FullscreenOptimizations)));
-            Step("Priorité", () => lines.Add(ApplyPriority(tweaks.GamePriority)));
-            Step("Nagle", () =>
+            Add("Mode jeu", () => lines.Add(ApplyGameMode(tweaks.GameMode)));
+            Add("HAGS", () => lines.Add(ApplyHags(tweaks.Hags)));
+            Add("Captures", () => lines.Add(ApplyDvr(tweaks.GameDvr)));
+            Add("Plein écran", () => lines.AddRange(ApplyFso(tweaks.FullscreenOptimizations)));
+            Add("Priorité", () => lines.Add(ApplyPriority(tweaks.GamePriority)));
+            Add("Nagle", () =>
             {
                 lock (_state.Gate)
                     lines.AddRange(_network.ApplyNagle(tweaks.Nagle, _state.Backup));
             });
-            Step("Effets visuels", () => lines.AddRange(ApplyVisuals(tweaks.VisualEffects)));
+            Add("Effets visuels", () => lines.AddRange(ApplyVisuals(tweaks.VisualEffects)));
 
             if (tweaks.CloseBackgroundApps)
-                Step("Applications", () => lines.AddRange(_processes.CloseSelected(appsToClose)));
+                Add("Applications", () => lines.AddRange(_processes.CloseSelected(appsToClose)));
             if (tweaks.CleanTemp)
-                Step("Fichiers temporaires", () => lines.AddRange(_cleanup.CleanTemp().Notes));
+                Add("Fichiers temporaires", () => lines.AddRange(_cleanup.CleanTemp().Notes));
             if (tweaks.CleanShaderCache)
             {
                 lines.Add("Les caches de shaders seront reconstruits au prochain lancement des jeux.");
-                Step("Shaders", () => lines.AddRange(_cleanup.CleanShaderCaches().Notes));
+                Add("Shaders", () => lines.AddRange(_cleanup.CleanShaderCaches().Notes));
             }
             if (tweaks.EmptyRecycleBin)
-                Step("Corbeille", () => lines.Add(_cleanup.EmptyRecycleBin()));
+                Add("Corbeille", () => lines.Add(_cleanup.EmptyRecycleBin()));
             if (tweaks.FlushDns)
-                Step("DNS", () => lines.Add(_network.FlushDns()));
+                Add("DNS", () => lines.Add(_network.FlushDns()));
+
+            var total = Math.Max(1, steps.Count);
+            for (var i = 0; i < steps.Count; i++)
+            {
+                progress?.Report(new BoostProgress(i * 100d / total, steps[i].Title));
+                try
+                {
+                    steps[i].Work();
+                }
+                catch (Exception ex)
+                {
+                    failed = true;
+                    lines.Add(steps[i].Title + " : " + ex.Message);
+                    _log.Error(steps[i].Title, ex);
+                }
+            }
+            progress?.Report(new BoostProgress(100, "Terminé"));
 
             lock (_state.Gate)
                 _store.SaveBackup(_state.Backup);
@@ -113,6 +122,8 @@ public sealed class TweakEngine
                 detail = detail[..3500];
             var title = presetName ?? (action == "cleanup" ? "Nettoyage" : action == "network" ? "Réseau" : "Boost");
             AddHistory(string.IsNullOrWhiteSpace(presetName) ? action : "preset", title + " — " + detail, !failed);
+            if (!failed && (action == "boost" || !string.IsNullOrWhiteSpace(presetName)))
+                _state.BoostApplied = true;
             if (!string.IsNullOrWhiteSpace(presetId))
                 TouchActivePreset(presetId);
             return (IReadOnlyList<string>)lines;
@@ -158,6 +169,7 @@ public sealed class TweakEngine
                 _store.SaveBackup(_state.Backup);
             }
             lines.Add("Les fichiers déjà supprimés (temporaires, shaders, corbeille) ne sont pas récupérés.");
+            _state.BoostApplied = false;
             AddHistory("restore", string.Join(" ", lines), true);
             return (IReadOnlyList<string>)lines;
         });
@@ -360,7 +372,7 @@ public sealed class TweakEngine
         lock (_state.Gate)
         {
             _state.Profile.Settings.Preferences.ActivePresetId = presetId;
-            _state.Profile.Settings.UpdatedAt = TimeStamp.Now();
+            _state.Profile.Settings.UpdatedAt = TimeStamp.Touch(_state.Profile.Settings.UpdatedAt);
             _store.SaveProfile(_state.ProfileKey, _state.Profile);
         }
         _state.Notify();

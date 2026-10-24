@@ -14,6 +14,8 @@
     <Color x:Key="Color.Teal">#FF3EE0A2</Color>
     <Color x:Key="Color.Danger">#FFFF5D6C</Color>
     <Color x:Key="Color.Warn">#FFFFC14A</Color>
+    <Color x:Key="Color.Violet">#FFC084FC</Color>
+    <Color x:Key="Color.Sky">#FF5CC8FF</Color>
 
     <SolidColorBrush x:Key="Brush.Bg" Color="{StaticResource Color.Bg}"/>
     <SolidColorBrush x:Key="Brush.Sidebar" Color="{StaticResource Color.Sidebar}"/>
@@ -29,4 +31,6 @@
     <SolidColorBrush x:Key="Brush.Teal" Color="{StaticResource Color.Teal}"/>
     <SolidColorBrush x:Key="Brush.Danger" Color="{StaticResource Color.Danger}"/>
     <SolidColorBrush x:Key="Brush.Warn" Color="{StaticResource Color.Warn}"/>
+    <SolidColorBrush x:Key="Brush.Violet" Color="{StaticResource Color.Violet}"/>
+    <SolidColorBrush x:Key="Brush.Sky" Color="{StaticResource Color.Sky}"/>
 </ResourceDictionary>

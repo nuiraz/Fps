@@ -64,11 +64,21 @@ public sealed class NetworkViewModel : ObservableObject
 
     private async Task Ping()
     {
+        var host = (Host ?? "").Trim();
+        if (!PreferenceRules.IsHost(host))
+        {
+            Output = "Hôte de ping invalide. Utilisez un nom ou une adresse, sans espace ni schéma.";
+            return;
+        }
+        var count = Math.Clamp(Count, 1, 10);
         var prefs = _services.State.Profile.Settings.Preferences;
-        prefs.PingHost = (Host ?? "").Trim();
-        prefs.PingCount = Math.Clamp(Count, 1, 10);
-        _services.State.Profile.Settings.UpdatedAt = TimeStamp.Now();
-        _services.Sync.SaveProfile();
+        if (!string.Equals(prefs.PingHost, host, StringComparison.Ordinal) || prefs.PingCount != count)
+        {
+            prefs.PingHost = host;
+            prefs.PingCount = count;
+            _services.State.Profile.Settings.UpdatedAt = TimeStamp.Touch(_services.State.Profile.Settings.UpdatedAt);
+            _services.Sync.SaveProfile();
+        }
         IsBusy = true;
         try
         {
@@ -239,12 +249,12 @@ public sealed class SettingsViewModel : ObservableObject
 
     private void Save()
     {
-        var games = Split(Games).Where(IsProcessName).Distinct(StringComparer.OrdinalIgnoreCase).Take(30).ToList();
-        var paths = Split(Paths).Where(IsExe).Distinct(StringComparer.OrdinalIgnoreCase).Take(20).ToList();
+        var games = Split(Games).Where(PreferenceRules.IsProcessName).Distinct(StringComparer.OrdinalIgnoreCase).Take(30).ToList();
+        var paths = Split(Paths).Select(PreferenceRules.CanonicalExe).Where(path => path != null).Select(path => path!).Distinct(StringComparer.OrdinalIgnoreCase).Take(20).ToList();
         var host = (PingHost ?? "").Trim();
-        if (host.Length == 0 || host.Length > 253 || host.Any(char.IsWhiteSpace))
+        if (!PreferenceRules.IsHost(host))
         {
-            Dialogs.Error("Hôte de ping invalide.");
+            Dialogs.Error("Hôte de ping invalide. Utilisez un nom ou une adresse, sans espace ni schéma.");
             return;
         }
         _services.State.Machine.ApiBaseUrl = Guard.NormalizeApiBase(ApiUrl);
@@ -261,7 +271,7 @@ public sealed class SettingsViewModel : ObservableObject
         prefs.PingHost = host;
         prefs.PingCount = Math.Clamp(PingCount, 1, 10);
         prefs.ActivePresetId = ActivePreset?.Id;
-        _services.State.Profile.Settings.UpdatedAt = TimeStamp.Now();
+        _services.State.Profile.Settings.UpdatedAt = TimeStamp.Touch(_services.State.Profile.Settings.UpdatedAt);
         _services.Sync.SaveProfile();
         Reload();
         Health = Placeholder
@@ -292,15 +302,6 @@ public sealed class SettingsViewModel : ObservableObject
 
     private static IEnumerable<string> Split(string? text)
         => (text ?? "").Split(['\r', '\n', ';'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-    private static bool IsProcessName(string value)
-        => value.Length is >= 1 and <= 80 && value.All(ch => char.IsAsciiLetterOrDigit(ch) || ch is '_' or '-' or '.');
-
-    private static bool IsExe(string value)
-        => value.Length is >= 5 and <= 260
-           && Path.IsPathRooted(value)
-           && value.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
-           && !value.Contains('"');
 }
 
 public sealed class AccountViewModel : ObservableObject

@@ -10,14 +10,22 @@ public sealed partial class PowerPlanService
     public const string High = "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c";
     public const string Balanced = "381b4222-f694-41f0-9685-ff5bb260df2e";
 
+    private string? _cachedScheme;
+    private long _cachedSchemeAt;
+
     [GeneratedRegex(@"([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})", RegexOptions.CultureInvariant)]
     private static partial Regex GuidPattern();
 
     public string? GetActiveScheme()
     {
+        var now = Environment.TickCount64;
+        if (_cachedSchemeAt != 0 && now - _cachedSchemeAt < 5000)
+            return _cachedScheme;
         var output = Run("/getactivescheme");
         var match = GuidPattern().Match(output);
-        return match.Success ? match.Value.ToLowerInvariant() : null;
+        _cachedScheme = match.Success ? match.Value.ToLowerInvariant() : null;
+        _cachedSchemeAt = now;
+        return _cachedScheme;
     }
 
     public IReadOnlyList<string> ListSchemes()
@@ -80,6 +88,8 @@ public sealed partial class PowerPlanService
         if (!GuidPattern().IsMatch(guid))
             throw new InvalidOperationException("Identifiant de plan d'alimentation invalide.");
         Run("/setactive " + guid);
+        _cachedScheme = guid.ToLowerInvariant();
+        _cachedSchemeAt = Environment.TickCount64;
         return "Plan d'alimentation : " + FrenchName(guid) + "." + note;
     }
 
@@ -91,6 +101,8 @@ public sealed partial class PowerPlanService
         if (!GuidPattern().IsMatch(guid))
             return "L'ancien plan d'alimentation enregistré est illisible.";
         Run("/setactive " + guid);
+        _cachedScheme = guid;
+        _cachedSchemeAt = Environment.TickCount64;
         var name = FrenchName(guid);
         backup.PreviousPowerScheme = null;
         return "Plan d'alimentation restauré : " + name + ".";

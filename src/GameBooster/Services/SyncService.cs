@@ -214,20 +214,36 @@ public sealed class SyncService : IDisposable
         if (!remote.Ok || remote.Value == null)
             throw new ApiException(remote.Status, "Réglages distants illisibles.", remote.Raw);
         SettingsDocument local;
+        var upload = false;
         lock (_state.Gate)
-            local = _state.Profile.Settings;
-        var compare = TimeStamp.Compare(local.UpdatedAt, remote.Value.UpdatedAt);
-        if (compare > 0)
         {
-            var put = await _api.PutSettingsAsync(local, cancellationToken);
-            lock (_state.Gate)
-                _state.Profile.Settings = put.Value ?? local;
-        }
-        else if (compare < 0)
-        {
-            lock (_state.Gate)
+            var cleaned = PreferenceRules.Sanitize(_state.Profile.Settings.Preferences);
+            var dirty = PreferenceRules.Changed(_state.Profile.Settings.Preferences, cleaned);
+            _state.Profile.Settings.Preferences = cleaned;
+            if (!TimeStamp.TryParse(_state.Profile.Settings.UpdatedAt, out _))
+            {
+                _state.Profile.Settings.UpdatedAt = TimeStamp.Touch(null);
+                dirty = true;
+            }
+            var compare = TimeStamp.Compare(_state.Profile.Settings.UpdatedAt, remote.Value.UpdatedAt);
+            if (compare < 0)
+            {
                 _state.Profile.Settings = remote.Value;
+                return;
+            }
+            if (compare == 0 && dirty)
+            {
+                _state.Profile.Settings.UpdatedAt = TimeStamp.Touch(_state.Profile.Settings.UpdatedAt);
+                compare = 1;
+            }
+            upload = compare > 0;
+            local = _state.Profile.Settings;
         }
+        if (!upload)
+            return;
+        var put = await _api.PutSettingsAsync(local, cancellationToken);
+        lock (_state.Gate)
+            _state.Profile.Settings = put.Value ?? local;
     }
 
     private async Task SyncPresets(CancellationToken cancellationToken)
@@ -242,14 +258,34 @@ public sealed class SyncService : IDisposable
 
         foreach (var preset in local)
         {
+            var originalId = preset.Id;
+            if (!PreferenceRules.IsPresetId(preset.Id))
+            {
+                if (preset.Deleted)
+                {
+                    RemovePreset(originalId);
+                    continue;
+                }
+                preset.Id = Guid.NewGuid().ToString("D");
+                preset.UpdatedAt = TimeStamp.Touch(preset.UpdatedAt);
+            }
+            if (!TimeStamp.TryParse(preset.CreatedAt, out _))
+                preset.CreatedAt = TimeStamp.TryParse(preset.UpdatedAt, out _) ? preset.UpdatedAt : TimeStamp.Touch(null);
+            if (!TimeStamp.TryParse(preset.UpdatedAt, out _))
+                preset.UpdatedAt = TimeStamp.Touch(preset.CreatedAt);
+            preset.CreatedAt = TimeStamp.EnsureIso(preset.CreatedAt) ?? preset.CreatedAt;
+            preset.UpdatedAt = TimeStamp.EnsureIso(preset.UpdatedAt) ?? preset.UpdatedAt;
+
             if (!remote.TryGetValue(preset.Id, out var server))
             {
                 if (preset.Deleted)
                 {
-                    RemovePreset(preset.Id);
+                    RemovePreset(originalId);
                     continue;
                 }
                 var saved = await _api.UpsertPresetAsync(preset, cancellationToken);
+                if (!string.Equals(originalId, preset.Id, StringComparison.OrdinalIgnoreCase))
+                    RemovePreset(originalId);
                 ReplacePreset(saved.Value ?? preset);
                 continue;
             }

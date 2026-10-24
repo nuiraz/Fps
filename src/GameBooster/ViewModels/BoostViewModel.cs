@@ -127,17 +127,23 @@ public sealed class BoostViewModel : ObservableObject
 
     private void DetectFortnite()
     {
-        var exe = PresetCatalog.DetectFortniteExe();
-        if (exe == null)
+        var found = PresetCatalog.DetectFortniteExe();
+        if (found == null)
         {
             Dialogs.Info("Fortnite n'a pas été trouvé dans les métadonnées du lanceur Epic. Ajoutez l'exécutable dans Paramètres si besoin. Aucun fichier du jeu n'est modifié.");
+            return;
+        }
+        var exe = PreferenceRules.CanonicalExe(found);
+        if (exe == null)
+        {
+            Dialogs.Info("Le chemin trouvé n'est pas un exécutable Windows accepté par le compte (C:\\…\\jeu.exe) :\n" + found);
             return;
         }
         var prefs = _services.State.Profile.Settings.Preferences;
         if (!prefs.FullscreenOptimizationPaths.Contains(exe, StringComparer.OrdinalIgnoreCase))
         {
             prefs.FullscreenOptimizationPaths.Add(exe);
-            _services.State.Profile.Settings.UpdatedAt = TimeStamp.Now();
+            _services.State.Profile.Settings.UpdatedAt = TimeStamp.Touch(_services.State.Profile.Settings.UpdatedAt);
             _services.Sync.SaveProfile();
         }
         Dialogs.Info("Exécutable ajouté pour les optimisations plein écran :\n" + exe);
@@ -148,8 +154,8 @@ public sealed class BoostViewModel : ObservableObject
         if (_loadingChecks)
             return;
         var prefs = _services.State.Profile.Settings.Preferences;
-        prefs.PrecheckBackgroundApps = Apps.Where(a => a.IsSelected).Select(a => a.ProcessName).ToList();
-        _services.State.Profile.Settings.UpdatedAt = TimeStamp.Now();
+        prefs.PrecheckBackgroundApps = Apps.Where(a => a.IsSelected).Select(a => a.ProcessName.ToLowerInvariant()).Where(PreferenceRules.IsBackgroundApp).Distinct().ToList();
+        _services.State.Profile.Settings.UpdatedAt = TimeStamp.Touch(_services.State.Profile.Settings.UpdatedAt);
         _services.Sync.SaveProfile();
     }
 

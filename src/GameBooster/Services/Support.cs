@@ -28,7 +28,39 @@ public static class AppJson
 
 public static class TimeStamp
 {
+    private static readonly object Gate = new();
+    private static long _lastUnixMs;
+
     public static string Now() => DateTime.UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", CultureInfo.InvariantCulture);
+
+    public static string Touch(string? previous = null)
+    {
+        var nowMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        var floor = nowMs;
+        if (TryParse(previous, out var prev))
+        {
+            var prevMs = new DateTimeOffset(prev.ToUniversalTime()).ToUnixTimeMilliseconds();
+            if (prevMs + 1 > floor)
+                floor = prevMs + 1;
+        }
+        lock (Gate)
+        {
+            if (_lastUnixMs + 1 > floor)
+                floor = _lastUnixMs + 1;
+            _lastUnixMs = floor;
+        }
+        return Format(DateTimeOffset.FromUnixTimeMilliseconds(floor).UtcDateTime);
+    }
+
+    public static string? EnsureIso(string? value)
+    {
+        if (!TryParse(value, out var utc))
+            return null;
+        return Format(utc.ToUniversalTime());
+    }
+
+    private static string Format(DateTime utc)
+        => utc.ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'", CultureInfo.InvariantCulture);
 
     public static bool TryParse(string? value, out DateTime utc)
     {
