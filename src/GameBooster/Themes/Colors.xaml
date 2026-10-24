@@ -1,0 +1,32 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Color x:Key="Color.Bg">#FF090A0E</Color>
+    <Color x:Key="Color.Sidebar">#FF0E1016</Color>
+    <Color x:Key="Color.Card">#FF151820</Color>
+    <Color x:Key="Color.CardAlt">#FF1B1F2A</Color>
+    <Color x:Key="Color.Line">#FF2A3142</Color>
+    <Color x:Key="Color.Text">#FFF4F1EA</Color>
+    <Color x:Key="Color.Muted">#FF9AA3B2</Color>
+    <Color x:Key="Color.Faint">#FF6C7585</Color>
+    <Color x:Key="Color.Lime">#FFD6FF3F</Color>
+    <Color x:Key="Color.LimeInk">#FF141807</Color>
+    <Color x:Key="Color.Coral">#FFFF6B3D</Color>
+    <Color x:Key="Color.Teal">#FF3EE0A2</Color>
+    <Color x:Key="Color.Danger">#FFFF5D6C</Color>
+    <Color x:Key="Color.Warn">#FFFFC14A</Color>
+
+    <SolidColorBrush x:Key="Brush.Bg" Color="{StaticResource Color.Bg}"/>
+    <SolidColorBrush x:Key="Brush.Sidebar" Color="{StaticResource Color.Sidebar}"/>
+    <SolidColorBrush x:Key="Brush.Card" Color="{StaticResource Color.Card}"/>
+    <SolidColorBrush x:Key="Brush.CardAlt" Color="{StaticResource Color.CardAlt}"/>
+    <SolidColorBrush x:Key="Brush.Line" Color="{StaticResource Color.Line}"/>
+    <SolidColorBrush x:Key="Brush.Text" Color="{StaticResource Color.Text}"/>
+    <SolidColorBrush x:Key="Brush.Muted" Color="{StaticResource Color.Muted}"/>
+    <SolidColorBrush x:Key="Brush.Faint" Color="{StaticResource Color.Faint}"/>
+    <SolidColorBrush x:Key="Brush.Lime" Color="{StaticResource Color.Lime}"/>
+    <SolidColorBrush x:Key="Brush.LimeInk" Color="{StaticResource Color.LimeInk}"/>
+    <SolidColorBrush x:Key="Brush.Coral" Color="{StaticResource Color.Coral}"/>
+    <SolidColorBrush x:Key="Brush.Teal" Color="{StaticResource Color.Teal}"/>
+    <SolidColorBrush x:Key="Brush.Danger" Color="{StaticResource Color.Danger}"/>
+    <SolidColorBrush x:Key="Brush.Warn" Color="{StaticResource Color.Warn}"/>
+</ResourceDictionary>

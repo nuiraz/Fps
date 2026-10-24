@@ -1,0 +1,37 @@
+<UserControl x:Class="GameBooster.Views.NetworkView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel MaxWidth="760" HorizontalAlignment="Left">
+            <TextBlock Text="Réseau" Style="{StaticResource PageTitle}"/>
+            <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,12" Text="La latence ICMP n'est pas le lag en jeu. Elle dépend du FAI, du routage et des serveurs, pas d'un bouton magique."/>
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="Nagle et limitation multimédia" FontWeight="SemiBold"/>
+                    <TextBlock Style="{StaticResource Muted}" FontSize="12" Margin="0,4,0,8" Text="Désactiver Nagle écrit TcpAckFrequency et TCPNoDelay sur les interfaces actives, et lève NetworkThrottlingIndex. Les valeurs précédentes restent dans la sauvegarde locale."/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Désactiver Nagle" Style="{StaticResource PrimaryButton}" Command="{Binding ApplyOffCommand}" Margin="0,0,8,0"/>
+                        <Button Content="Rétablir Nagle" Command="{Binding ApplyOnCommand}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="Cache DNS" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                    <Button Content="Vider le cache DNS" Command="{Binding FlushCommand}" HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="Test ICMP" FontWeight="SemiBold"/>
+                    <TextBlock Text="Hôte" Style="{StaticResource Muted}" Margin="0,8,0,0"/>
+                    <TextBox Text="{Binding Host, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,8"/>
+                    <TextBlock Text="Nombre d'essais (1 à 10)" Style="{StaticResource Muted}"/>
+                    <TextBox Text="{Binding Count}" Margin="0,4,0,8" Width="80" HorizontalAlignment="Left"/>
+                    <Button Content="Tester" Style="{StaticResource PrimaryButton}" Command="{Binding PingCommand}" HorizontalAlignment="Left"/>
+                    <TextBox Text="{Binding Output}" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="120" Margin="0,12,0,0" Background="Transparent" BorderThickness="0"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

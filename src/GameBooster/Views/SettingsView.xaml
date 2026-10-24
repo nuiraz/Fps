@@ -1,0 +1,37 @@
+<UserControl x:Class="GameBooster.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel MaxWidth="760" HorizontalAlignment="Left">
+            <TextBlock Text="Paramètres" Style="{StaticResource PageTitle}"/>
+            <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,12" Text="L'adresse de l'API et « se souvenir de moi » restent sur cet ordinateur. Le reste suit le compte."/>
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="URL de l'API" Style="{StaticResource Muted}"/>
+                    <TextBox Text="{Binding ApiUrl, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,8"/>
+                    <TextBlock Text="Exemple : https://fps-api.votre-sous-domaine.workers.dev" FontSize="12" Foreground="{StaticResource Brush.Faint}"/>
+                    <CheckBox Content="Se souvenir de la session sur ce PC" IsChecked="{Binding RememberSession}" Margin="0,10,0,8"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Enregistrer" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}" Margin="0,0,8,0"/>
+                        <Button Content="Tester l'API" Command="{Binding TestCommand}"/>
+                    </StackPanel>
+                    <TextBlock Text="{Binding Health}" Style="{StaticResource Muted}" Margin="0,10,0,0"/>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="Preset actif" Style="{StaticResource Muted}"/>
+                    <ComboBox ItemsSource="{Binding Presets}" SelectedItem="{Binding ActivePreset}" DisplayMemberPath="Name" Margin="0,4,0,8"/>
+                    <TextBlock Text="Jeux surveillés, un nom de processus par ligne" Style="{StaticResource Muted}"/>
+                    <TextBox Text="{Binding Games, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" MinHeight="90" Margin="0,4,0,8"/>
+                    <TextBlock Text="Exécutables pour les optimisations plein écran" Style="{StaticResource Muted}"/>
+                    <TextBox Text="{Binding Paths, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" MinHeight="70" Margin="0,4,0,8"/>
+                    <TextBlock Text="Hôte ICMP" Style="{StaticResource Muted}"/>
+                    <TextBox Text="{Binding PingHost, UpdateSourceTrigger=PropertyChanged}" Margin="0,4,0,8"/>
+                    <TextBlock Text="Nombre de pings" Style="{StaticResource Muted}"/>
+                    <TextBox Text="{Binding PingCount}" Width="80" HorizontalAlignment="Left" Margin="0,4,0,0"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

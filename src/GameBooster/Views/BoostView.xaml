@@ -1,0 +1,53 @@
+<UserControl x:Class="GameBooster.Views.BoostView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:GameBooster.Controls">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.3*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,0,16,0">
+            <StackPanel>
+                <TextBlock Text="Boost" Style="{StaticResource PageTitle}"/>
+                <TextBlock Style="{StaticResource Muted}" Margin="0,4,0,12" Text="Les valeurs d'origine sont enregistrées une seule fois sur ce PC, protégées par DPAPI, et ne quittent pas la machine."/>
+                <TextBlock Text="Preset" Style="{StaticResource Muted}"/>
+                <ComboBox Margin="0,4,0,12" ItemsSource="{Binding Presets}" SelectedItem="{Binding SelectedPreset}" DisplayMemberPath="Name"/>
+                <Border Style="{StaticResource Card}">
+                    <controls:TweakEditor DataContext="{Binding Working}"/>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <TextBlock Text="Applications à fermer" FontWeight="SemiBold"/>
+                <TextBlock Style="{StaticResource Muted}" FontSize="12" Margin="0,4,0,8" Text="Liste fermée. Les processus système, anti-triche et le jeu lui-même sont refusés."/>
+                <ItemsControl ItemsSource="{Binding Apps}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <DockPanel Margin="0,2">
+                                <TextBlock x:Name="State" DockPanel.Dock="Right" Text="arrêté" Foreground="{StaticResource Brush.Faint}" FontSize="12" VerticalAlignment="Center"/>
+                                <CheckBox IsChecked="{Binding IsSelected}" Content="{Binding DisplayName}"/>
+                            </DockPanel>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                    <Setter TargetName="State" Property="Text" Value="en cours"/>
+                                    <Setter TargetName="State" Property="Foreground" Value="{StaticResource Brush.Teal}"/>
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <StackPanel Orientation="Horizontal" Margin="0,12,0,8">
+                    <Button Content="Actualiser" Command="{Binding RefreshCommand}" Margin="0,0,8,0"/>
+                    <Button Content="Détecter Fortnite" Command="{Binding DetectCommand}"/>
+                </StackPanel>
+                <Button Content="Booster" Style="{StaticResource PrimaryButton}" Command="{Binding BoostCommand}" HorizontalAlignment="Left"/>
+                <Button Content="Restaurer par défaut" Style="{StaticResource DangerButton}" Command="{Binding RestoreCommand}" HorizontalAlignment="Left" Margin="0,8,0,12"/>
+                <Border Style="{StaticResource Card}">
+                    <TextBox Text="{Binding Log}" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="120" BorderThickness="0" Background="Transparent"/>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

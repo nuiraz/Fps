@@ -1,0 +1,13 @@
+bin/
+obj/
+.vs/
+*.user
+*.suo
+node_modules/
+.wrangler/
+.dev.vars
+.env
+dist/
+logs/
+*.log
+TestResults/

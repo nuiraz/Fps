@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Compte · Game Booster</title>
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="mark"><span class="bolt"></span> GAME BOOSTER</div>
+      <nav><a href="index.html">Accueil</a></nav>
+    </header>
+    <section>
+      <h1>Compte</h1>
+      <p class="lede">Connexion au Worker. Les presets et l'historique affichés viennent de D1, pas du disque.</p>
+      <p id="warning" class="warn" hidden>L'URL de l'API contient encore &lt;subdomain&gt;. Remplacez-la dans js/config.js.</p>
+      <form id="form">
+        <input id="username" autocomplete="username" placeholder="Nom d'utilisateur" required>
+        <input id="password" type="password" autocomplete="current-password" placeholder="Mot de passe" required>
+        <div class="actions">
+          <button class="lime" id="login" type="submit">Connexion</button>
+          <button class="lime" id="register" type="button">Créer le compte</button>
+        </div>
+      </form>
+      <p id="message"></p>
+      <div id="account" hidden>
+        <h2 id="who"></h2>
+        <p id="created" class="lede"></p>
+        <h2>Presets</h2>
+        <div id="presets" class="list"></div>
+        <h2>Historique</h2>
+        <div id="history" class="list"></div>
+        <button id="logout" type="button">Déconnexion</button>
+      </div>
+    </section>
+  </div>
+  <script src="js/config.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>
