@@ -32,11 +32,29 @@ jobs:
           name: GameBooster-win-x64
           path: src/GameBooster/bin/Release/net8.0-windows/win-x64/publish/GameBooster.exe
           if-no-files-found: error
-      - name: Attach the executable to the GitHub Release
+      - name: Package GameBooster-win-x64.zip
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          $dir = "src/GameBooster/bin/Release/net8.0-windows/win-x64/publish"
+          if (-not (Test-Path (Join-Path $dir "GameBooster.exe"))) { throw "GameBooster.exe is missing." }
+          tar -a -c -f GameBooster-win-x64.zip -C $dir GameBooster.exe
+          Get-Item GameBooster-win-x64.zip | Format-List Name, Length
+      - name: Publish the GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: src/GameBooster/bin/Release/net8.0-windows/win-x64/publish/GameBooster.exe
+          draft: false
+          prerelease: false
+          make_latest: true
+          fail_on_unmatched_files: true
+          name: Game Booster ${{ github.ref_name }}
+          body: |
+            Exécutable Windows autonome (win-x64, .NET 8 inclus).
+            Le téléchargement public est `GameBooster.exe`. `GameBooster-win-x64.zip` contient le même fichier.
+          files: |
+            src/GameBooster/bin/Release/net8.0-windows/win-x64/publish/GameBooster.exe
+            GameBooster-win-x64.zip
 
   worker:
     runs-on: ubuntu-latest

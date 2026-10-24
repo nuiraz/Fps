@@ -27,8 +27,8 @@ Le ping affiché est une latence ICMP. Ce n'est pas le lag d'une partie. Celui-c
 
 L'exécutable est autonome (`win-x64`, .NET 8 inclus).
 
-1. Ouvrir les [releases](https://github.com/nuiraz/Fps/releases/latest) et prendre `GameBooster.exe` attaché à une étiquette `v*`.
-2. Sans release, ouvrir les [Actions](https://github.com/nuiraz/Fps/actions), choisir un build vert et télécharger l'artefact **GameBooster-win-x64**.
+1. Télécharger [GameBooster.exe](https://github.com/nuiraz/Fps/releases/latest/download/GameBooster.exe). Ce lien est public : aucun compte GitHub n'est demandé. La [page des versions](https://github.com/nuiraz/Fps/releases/latest) liste aussi `GameBooster-win-x64.zip`, le même exécutable dans une archive.
+2. Les artefacts Actions restent un secours pour un build sans étiquette `v*`. Ils demandent une connexion GitHub.
 
 Windows demande une élévation administrateur au lancement. L'application vise Windows 10 ou plus récent. Si un antivirus s'inquiète des changements de registre ou de la fermeture de processus, le code de ce dépôt est la référence.
 
@@ -102,7 +102,7 @@ npx wrangler d1 migrations apply fps-auth --remote
 
 Le nom inséré doit être exactement `0001_init.sql`. Si la ligne existe déjà, l'insertion échoue sur la contrainte d'unicité : passez alors directement à `migrations apply`.
 
-`site/js/config.js` pointe déjà vers `https://fps-api.nathna.workers.dev`. Le lien de téléchargement du site pointe vers les releases GitHub.
+`site/js/config.js` pointe déjà vers `https://fps-api.nathna.workers.dev`. Le bouton du site télécharge `https://github.com/nuiraz/Fps/releases/latest/download/GameBooster.exe`. Une étiquette `v*` publie une release complète (ni brouillon, ni préversion) avec `GameBooster.exe` et `GameBooster-win-x64.zip`, pour que `/releases/latest` reste stable.
 
 ### API
 
